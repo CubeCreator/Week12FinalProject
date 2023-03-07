@@ -26,8 +26,7 @@ class Character {
 }
 
 class Description {
-    constructor(name, gender, race, nationality, occupation, age, personality, backstory){
-        this.name = name;
+    constructor(gender, race, nationality, occupation, age, personality, backstory){
         this.gender = gender;
         this.race = race;
         this.nationality = nationality;
@@ -145,42 +144,67 @@ class DOMManager {
                 `<div id=${character._id} class="card">
                     <div class="card-header">
                         <h2>${character.name}</h2>
-                        <button class= "btn btn-danger" onclick="DOMManager.deleteCharacter('${character._id}')">Delete</button>
+                        <button class= "btn btn-danger" onclick="DOMManager.deleteCharacter('${character.id}')">Delete</button>
                     </div>
                     <div class="card-body">
                         <div class="card">
                             <div class="row">
                                 <div class="col-sm">
                                     <h2> Character Description </h2>
+                                    <button class="btn btn-success" onclick="DOMManager.addDescriptionInfo('${character.id}')">Add</bitton>
                                 </div>
+                                
                                 <div class="row">
+                                    <div class="col-sm">
+                                        <select type="dropdown" id="${character._id}-gender" class="form control">
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
                                     <div class="col-sm">
 
                                     </div>
                                 </div>
                             </div>
+                            <br>
                             <div class="row">
                                 <div class="col-sm">
                                     <h2> Character Weapon </h2>
+                                    <button class="btn btn-success" onclick="DOMManager.addWeaponsInfo('${character.id}')">Add</button>
                                 </div>
+                                <br>
                                 <div class="row">
                                     <div class="col-sm">
                                         <input type="text" id="${character._id}-weapon-name" class="form-control" placeholder="Weapon Name">
                                     </div>
                                     <div class="col-sm">
-                                        <input type="dropdown" id="${character._id}-weapon-slot" class="form control">
+                                        <select type="dropdown" id="${character._id}-weapon-slot" class="form control" placeholder="Weapon Slot">
+                                            <option value="Primary">Primary</option>
+                                            <option value="Secondary">Secondary</option>
+                                        </select>
                                     </div>
                                     <div class="col-sm">
-                                        <input type="dropdown" id="${character._id}-weapon-type" class="form control">
+                                        <select type="dropdown" id="${character._id}-weapon-type" class="form control" placeholder="Damage Type">
+                                            <option value="Hitscan">Hitscan</option>
+                                            <option value="Projectile">Projectile</option>
+                                            <option value="Melee">Melee</option>
+                                            <option value="Utility">Utility</option>
+                                        </select>
                                     </div>
                                     <div class="col-sm">
-                                        <input type="dropdown" id="${character._id}-weapon-special" class="form control">
+                                        <select type="dropdown" id="${character._id}-weapon-special" class="form control" placeholder="Special Type">
+                                            <option value="Ammo Types">Ammo Types</option>
+                                            <option value="Alternative Fire">Alternative Fire</option>
+                                            <option value="Damage Boosted">Damage Boosted</option>
+                                            <option value="Weapon Upgrades">Weapon Upgrades</option>
+                                        </select>
                                     </div>
                                 </div>
                             
                         </div>
                     </div>
-                </div><br>
+                </div><br><br>
                 `
             );
             for (let information of character.info) {
@@ -188,7 +212,8 @@ class DOMManager {
                     `<p>
                         <span id="name-${information._id}"><strong>Name: </strong> ${information.name}</span>
                         <span id="info-${information._id}"><strong>Info: </strong> ${information.info},/span>
-                        <button class="btn btn-danger> onclick="DOMManager.deleteInfo('${character._id}', '${information._id}')">Delete Info</button>`
+                        <button class="btn btn-danger> onclick="DOMManager.deleteInfo('${character._id}', '${information._id}')">Delete Info</button>
+                        </p>`
                 )
             }
         }

@@ -1,5 +1,10 @@
 class Weapons{
-    constructor(){
+    constructor(weaponName, weaponSlot, damageType, specialType, weaponTags){
+        this.weaponName = weaponName;
+        this.weaponSlot = weaponSlot;
+        this.damageType = damageType;
+        this.specialType = specialType;
+        this.weaponTags = weaponTags;
 
     }
 }
@@ -11,8 +16,8 @@ class Character {
         this.info = [];
     }
 
-    addWeaponsInfo() {
-        this.info.push(new Weapons)
+    addWeaponsInfo(weaponName, weaponSlot, damageType, specialType, weaponTags) {
+        this.info.push(new Weapons(weaponName, weaponSlot, damageType, specialType, weaponTags))
     }
 
     addDescriptionInfo(name, gender, race, nationality, occupation, age, personality, backstory) {
@@ -73,12 +78,63 @@ class DOMManager {
         CharacterServices.getAllCharacters().then(characters => this.render(characters))
     }
 
+    static createCharacter(name) {
+        CharacterServices.createCharacter(new Character(name))
+            .then(() => {
+                return CharacterServices.getAllCharacters();
+            })
+            .then((characters) => this.render(characters));
+    }
+
     static deleteCharacter(id){
         CharacterServices.deleteCharacter(id)
             .then(() => {
                 return CharacterServices.getAllCharacters();
             })
             .then((characters) => this.render(characters));
+    }
+
+    static addWeaponsInfo(id){
+        for (let character of this.characters) {
+            if(character._id == id) {
+                character.info.push(new Weapons($(`#${character._id}-weapon-name`).val(), $(`#${character._id}-weapon-slot`).val(), $(`#${character._id}-weapon-type`).val(), $(`#${character._id}-weapon-special`).val()));
+                CharacterServices.updateCharacter(character)
+                    .then(() => {
+                        return CharacterServices.getAllCharacters();
+                    })
+                    .then((characters) => this.render(characters))
+            }
+        }
+    }
+
+    static addDescriptionInfo(id){
+        for (let character of this.characters) {
+            if(character._id == id) {
+                character.info.push(new Description())
+                Character.updateCharacter(character)
+                    .then(() => {
+                        return CharacterServices.getAllCharacters();
+                    })
+                    .then((characters) => this.render(characters))
+            }
+        }
+    }
+
+    static deleteInfo(characterId, infoId) {
+        for(let character of this.characters) {
+            if(character._id == characterId) {
+                for (let information of character.info) {
+                    if (info._id == infoId) {
+                        character.info.splice(character.info.indexOf(information), 1);
+                        CharacterServices.updateCharacter(character)
+                            .then(() => {
+                                return CharacterServices.getAllCharacters();
+                            })
+                            .then((characters) => this.render(characters));
+                    }
+                }
+            }
+        }
     }
 
     static render(characters) {
@@ -95,32 +151,33 @@ class DOMManager {
                         <div class="card">
                             <div class="row">
                                 <div class="col-sm">
-                                    <h2> Character Weapon </h2>
+                                    <h2> Character Description </h2>
                                 </div>
-                                <div class="col-sm">
-                                    <input type="text" id="${character._id}-weapon-name" class="form-control" placeholder="Weapon Name">
-                                </div>
-                                <div class="col-sm">
-                                    <input type="dropdown" id="${character._id}-weapon-slot" class="form control">
-                                </div>
-                                <div class="col-sm">
-                                    <input type="dropdown" id="${character._id}-weapon-type" class="form control">
-                                </div>
-                                <div class="col-sm">
-                                    <input type="dropdown" id="${character._id}-weapon-special" class="form control">
+                                <div class="row">
+                                    <div class="col-sm">
+
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-sm">
-                                    <h2> Character Description </h2>
+                                    <h2> Character Weapon </h2>
                                 </div>
-                                <div class="col-sm">
-                                    <input>
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <input type="text" id="${character._id}-weapon-name" class="form-control" placeholder="Weapon Name">
+                                    </div>
+                                    <div class="col-sm">
+                                        <input type="dropdown" id="${character._id}-weapon-slot" class="form control">
+                                    </div>
+                                    <div class="col-sm">
+                                        <input type="dropdown" id="${character._id}-weapon-type" class="form control">
+                                    </div>
+                                    <div class="col-sm">
+                                        <input type="dropdown" id="${character._id}-weapon-special" class="form control">
+                                    </div>
                                 </div>
-                                <div class="col-sm">
-                                    <input>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div><br>
@@ -130,10 +187,18 @@ class DOMManager {
                 $(`#${character._id}`).find('.card-body').append(
                     `<p>
                         <span id="name-${information._id}"><strong>Name: </strong> ${information.name}</span>
-                        <span id="info-${information._id}"><strong>Area: </strong> ${information.info},/span>
+                        <span id="info-${information._id}"><strong>Info: </strong> ${information.info},/span>
                         <button class="btn btn-danger> onclick="DOMManager.deleteInfo('${character._id}', '${information._id}')">Delete Info</button>`
                 )
             }
         }
     }
 }
+
+$("#create-new-character").click(() => {
+    DOMManager.createCharacter($('#new-character-name').val())
+    $('#new-character-name').val('');
+});
+
+
+DOMManager.getAllCharacters();

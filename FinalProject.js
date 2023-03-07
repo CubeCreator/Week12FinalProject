@@ -1,7 +1,22 @@
-class Character {
-    constructor(name) {
-        this.name = name;
+class Weapons{
+    constructor(){
 
+    }
+}
+
+class Character {
+    constructor(name, id) {
+        this.name = name;
+        this.id = id;
+        this.info = [];
+    }
+
+    addWeaponsInfo() {
+        this.info.push(new Weapons)
+    }
+
+    addDescriptionInfo(name, gender, race, nationality, occupation, age, personality, backstory) {
+        this.info.push(new Description(name, gender, race, nationality, occupation, age, personality, backstory));
     }
 }
 
@@ -58,6 +73,14 @@ class DOMManager {
         CharacterServices.getAllCharacters().then(characters => this.render(characters))
     }
 
+    static deleteCharacter(id){
+        CharacterServices.deleteCharacter(id)
+            .then(() => {
+                return CharacterServices.getAllCharacters();
+            })
+            .then((characters) => this.render(characters));
+    }
+
     static render(characters) {
         this.characters = characters
         $('#app').empty();
@@ -106,9 +129,9 @@ class DOMManager {
             for (let information of character.info) {
                 $(`#${character._id}`).find('.card-body').append(
                     `<p>
-                        <span id="name-${character._id}"><strong>Name: </strong> ${character.name}</span>
-                        <span id="info-${character._id}"><strong>Area: </strong> ${character.info},/span>
-                        <button class="btn btn-danger> onclick="DOMManager.deleteInfo('${character._id}', '${info._id})`
+                        <span id="name-${information._id}"><strong>Name: </strong> ${information.name}</span>
+                        <span id="info-${information._id}"><strong>Area: </strong> ${information.info},/span>
+                        <button class="btn btn-danger> onclick="DOMManager.deleteInfo('${character._id}', '${information._id}')">Delete Info</button>`
                 )
             }
         }

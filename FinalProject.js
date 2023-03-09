@@ -1,3 +1,4 @@
+//Classes Defined
 class Weapons{
     static idCounter = 0
 
@@ -16,11 +17,12 @@ class Character {
     constructor(name, id) {
         this.name = name;
         this.id = id;
-        this.info = [];
+        this.descriptionInfo = []
+        this.weaponInfo = [];
     }
 
     addWeaponsInfo(weaponName, weaponSlot, damageType, clipType, specialType) {
-        this.info.push(new Weapons(weaponName, weaponSlot, damageType, clipType, specialType))
+        this.info.push(new Weapons(weaponName, weaponSlot, damageType, clipType, specialType));
     }
 
     addDescriptionInfo(name, gender, race, nationality, occupation, age, personality, backstory) {
@@ -78,11 +80,11 @@ class CharacterServices {
 
 class DOMManager {
     static characters;
-
+    //Get All Characters
     static getAllCharacters() {
         CharacterServices.getAllCharacters().then(characters => this.render(characters))
     }
-
+    //Create Character
     static createCharacter(name) {
         CharacterServices.createCharacter(new Character(name))
             .then(() => {
@@ -90,7 +92,7 @@ class DOMManager {
             })
             .then((characters) => this.render(characters));
     }
-
+    //Delete Character
     static deleteCharacter(id){
         CharacterServices.deleteCharacter(id)
             .then(() => {
@@ -99,10 +101,11 @@ class DOMManager {
             .then((characters) => this.render(characters));
     }
 
+    //Add Weapons to Info
     static addWeaponsInfo(id){
         for (let character of this.characters) {
             if(character.id == id) {
-                character.info.push(new Weapons($(`#${character.id}-weapon-name`).val(), $(`#${character.id}-weapon-slot`).val(), $(`#${character.id}-weapon-type`).val(), $(`${character.id}-clip-type`).val(), $(`#${character.id}-weapon-special`).val()));
+                character.weaponInfo.push(new Weapons($(`#${character.id}-weapon-name`).val(), $(`#${character.id}-weapon-slot`).val(), $(`#${character.id}-weapon-type`).val(), $(`${character.id}-clip-type`).val(), $(`#${character.id}-weapon-special`).val()));
                 CharacterServices.updateCharacter(character)
                     .then(() => {
                         return CharacterServices.getAllCharacters();
@@ -113,10 +116,11 @@ class DOMManager {
         console.log("Weapon Added")
     }
 
+    //Add Description to Info
     static addDescriptionInfo(id){
         for (let character of this.characters) {
             if(character.id == id) {
-                character.info.push(new Description($(`#${character.id}-gender`).val(), $(`#${character.id}-race`).val(), $(`#${character.id}-nationality`).val(), $(`#${character.id}-occupation`).val(), $(`#${character.id}-age`).val(), $(`#${character.id}-personality`).val(), $(`#${character.id}-backstory`).val()));
+                character.descriptionInfo.push(new Description($(`#${character.id}-gender`).val(), $(`#${character.id}-race`).val(), $(`#${character.id}-nationality`).val(), $(`#${character.id}-occupation`).val(), $(`#${character.id}-age`).val(), $(`#${character.id}-personality`).val(), $(`#${character.id}-backstory`).val()));
                 CharacterServices.updateCharacter(character)
                     .then(() => {
                         return CharacterServices.getAllCharacters();
@@ -126,14 +130,35 @@ class DOMManager {
         }
         console.log("Description Added")
     }
-
-    static deleteInfo(characterId, infoId) {
+    
+    //Delete Weapon Info
+    static deleteWeaponInfo(characterId, weaponId) {
         for(let character of this.characters) {
             if(character.id == characterId) {
                 for (let info of character.info) {
-                    console.log(info.weaponId, infoId)
+                    console.log(info.weaponId, weaponId)
+                    if (info.weaponId == weaponId) {
+                        character.weaponInfo.splice(character.weaponInfo.indexOf(info), 1);
+                        CharacterServices.updateCharacter(character)
+                            .then(() => {
+                                return CharacterServices.getAllCharacters();
+                            })
+                            .then((characters) => this.render(characters));
+                    }
+                }
+            }
+        }
+        console.log("Info Deleted")
+    }
+
+    //Delete Description Info
+    static deleteDescriptionInfo(characterId, descriptionId) {
+        for(let character of this.characters) {
+            if(character.id == characterId) {
+                for (let info of character.info) {
+                    console.log(info.descriptionId, descriptionId)
                     if (info.weaponId == infoId || info.descriptionId == infoId) {
-                        character.info.splice(character.info.indexOf(info), 1);
+                        character.descriptionInfo.splice(character.descriptionInfo.indexOf(info), 1);
                         CharacterServices.updateCharacter(character)
                             .then(() => {
                                 return CharacterServices.getAllCharacters();
@@ -147,6 +172,7 @@ class DOMManager {
     }
 
     static render(characters) {
+        //Render Character
         this.characters = characters
         $('#app').empty();
         for (let character of characters) {
@@ -280,6 +306,7 @@ class DOMManager {
                                         <option value="Janitor">Janitor</option>
                                         <option value="Journalist">Journalist</option>
                                         <option value="Judge">Judge</option>
+                                        <option value="Lumberjack">Lumberjack</option>
                                         <option value="Manager">Manager</option>
                                         <option value="Marketer">Marketer</option>
                                         <option value="Mayor">Mayor</option>
@@ -386,12 +413,21 @@ class DOMManager {
                 </div><br><br>
                 `
             );
-            for (let information of character.info) {
+            for (let info of character.weaponInfo) {
+                console.log("Info: ", info, " Character.weaponInfo:", character.weaponInfo)
                 $(`#${character.id}`).find('.card-body').append(
                     `<p>
-                        <span id="name-${information.id}"><strong>Name: </strong> ${information.name}</span>
-                        <span id="info-${information.id}"><strong>Info: </strong> ${information.info}</span>
-                        <button class="btn btn-danger" onclick="DOMManager.deleteInfo('${character.id}', '${information.id}')">Delete Info</button>
+                        <span id="info-${info.id}"><strong>Weapon: </strong> ${character.weaponInfo}</span>
+                        <button class="btn btn-danger" onclick="DOMManager.deleteWeaponInfo('${character.id}', '${info.weaponId}')">Delete Info</button>
+                        </p>`
+                )
+            }
+            for (let info of character.descriptionInfo) {
+                console.log("Info: ", info, " Character.descriptionInfo:", character.descriptionInfo)
+                $(`#${character.id}`).find('.card-body').append(
+                    `<p>
+                        <span id="info-${info.id}"><strong>Description: </strong> ${character.descriptionInfo}</span>
+                        <button class="btn btn-danger" onclick="DOMManager.deleteWeaponInfo('${character.id}', '${info.descriptionId}')">Delete Weapon</button>
                         </p>`
                 )
             }
@@ -400,7 +436,7 @@ class DOMManager {
 }
 
 $("#create-new-character").click(() => {
-    DOMManager.createCharacter($('#new-character-name').val())
+    DOMManager.createCharacter($('#new-character-name').val(), )
     $('#new-character-name').val('');
 });
 

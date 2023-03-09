@@ -1,10 +1,13 @@
 class Weapons{
-    constructor(weaponName, weaponSlot, damageType, specialType, weaponTags){
+    static idCounter = 0
+
+    constructor(weaponName, weaponSlot, damageType, clipType, specialType){
         this.weaponName = weaponName;
+        this.weaponId = Weapons.idCounter++;
         this.weaponSlot = weaponSlot;
         this.damageType = damageType;
+        this.clipType = clipType;
         this.specialType = specialType;
-        this.weaponTags = weaponTags;
 
     }
 }
@@ -26,7 +29,10 @@ class Character {
 }
 
 class Description {
+    idCounter = 0
+
     constructor(gender, race, nationality, occupation, age, personality, backstory){
+        this.descriptionId = Description.idCounter++;
         this.gender = gender;
         this.race = race;
         this.nationality = nationality;
@@ -54,7 +60,7 @@ class CharacterServices {
 
     static updateCharacter(character) {
         return $.ajax({
-            url: this.url + `/${character._id}`,
+            url: this.url + `/${character.id}`,
             dataType: 'json',
             data: JSON.stringify(character),
             contentType: 'application/json',
@@ -96,7 +102,7 @@ class DOMManager {
     static addWeaponsInfo(id){
         for (let character of this.characters) {
             if(character.id == id) {
-                character.info.push(new Weapons($(`#${character._id}-weapon-name`).val(), $(`#${character._id}-weapon-slot`).val(), $(`#${character._id}-weapon-type`).val(), $(`${character._id}-clip-type`).val(), $(`#${character._id}-weapon-special`).val()));
+                character.info.push(new Weapons($(`#${character.id}-weapon-name`).val(), $(`#${character.id}-weapon-slot`).val(), $(`#${character.id}-weapon-type`).val(), $(`${character.id}-clip-type`).val(), $(`#${character.id}-weapon-special`).val()));
                 CharacterServices.updateCharacter(character)
                     .then(() => {
                         return CharacterServices.getAllCharacters();
@@ -104,27 +110,30 @@ class DOMManager {
                     .then((characters) => this.render(characters))
             }
         }
+        console.log("Weapon Added")
     }
 
     static addDescriptionInfo(id){
         for (let character of this.characters) {
             if(character.id == id) {
-                character.info.push(new Description($(`#${character._id}-gender`).val(), $(`#${character._id}-race`).val(), $(`#${character._id}-nationality`).val(), $(`#${character._id}-occupation`).val(), $(`#${character._id}-age`).val(), $(`#${character._id}-personality`).val(), $(`#${character._id}-backstory`).val()));
-                Character.updateCharacter(character)
+                character.info.push(new Description($(`#${character.id}-gender`).val(), $(`#${character.id}-race`).val(), $(`#${character.id}-nationality`).val(), $(`#${character.id}-occupation`).val(), $(`#${character.id}-age`).val(), $(`#${character.id}-personality`).val(), $(`#${character.id}-backstory`).val()));
+                CharacterServices.updateCharacter(character)
                     .then(() => {
                         return CharacterServices.getAllCharacters();
                     })
                     .then((characters) => this.render(characters))
             }
         }
+        console.log("Description Added")
     }
 
     static deleteInfo(characterId, infoId) {
         for(let character of this.characters) {
-            if(character._id == characterId) {
-                for (let information of character.info) {
-                    if (info._id == infoId) {
-                        character.info.splice(character.info.indexOf(information), 1);
+            if(character.id == characterId) {
+                for (let info of character.info) {
+                    console.log(info.weaponId, infoId)
+                    if (info.weaponId == infoId || info.descriptionId == infoId) {
+                        character.info.splice(character.info.indexOf(info), 1);
                         CharacterServices.updateCharacter(character)
                             .then(() => {
                                 return CharacterServices.getAllCharacters();
@@ -134,6 +143,7 @@ class DOMManager {
                 }
             }
         }
+        console.log("Info Deleted")
     }
 
     static render(characters) {
@@ -141,7 +151,7 @@ class DOMManager {
         $('#app').empty();
         for (let character of characters) {
             $('#app').prepend(
-                `<div id=${character._id} class="card">
+                `<div id=${character.id} class="card">
                     <div class="card-header">
                         <h2>${character.name}</h2>
                         <button class= "btn btn-danger" onclick="DOMManager.deleteCharacter('${character.id}')">Delete</button>
@@ -156,7 +166,7 @@ class DOMManager {
                             <div class="row">
                                 <div class="col-sm">
                                     <h4> Gender </h4>
-                                    <select type="dropdown" id="${character._id}-gender" class="form control">
+                                    <select type="dropdown" id="${character.id}-gender" class="form control">
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
                                         <option value="Other">Other</option>
@@ -164,7 +174,7 @@ class DOMManager {
                                     </div>
                                 <div class="col-sm">
                                     <h4> Race </h4>
-                                    <select type="dropdown" id="${character._id}-race" class="form control">
+                                    <select type="dropdown" id="${character.id}-race" class="form control">
                                         <option value="Asian">Asian</option>
                                         <option value="Black">Black</option>
                                         <option value="Hispanic">Hispanic</option>
@@ -174,7 +184,7 @@ class DOMManager {
                                 </div>
                                 <div class="col-sm">
                                     <h4> Nationality </h4>
-                                    <select type="dropdown" id="${character._id}-nationality" class="form control">
+                                    <select type="dropdown" id="${character.id}-nationality" class="form control">
                                         <option value="Australia">Australia</option>
                                         <option value="Bangladesh">Bangladesh</option>
                                         <option value="Belgium">Belgium</option>
@@ -224,7 +234,7 @@ class DOMManager {
                                 </div>
                                 <div class="col-sm">
                                     <h4> Occupation </h4>
-                                    <select type="dropdown" id="${character._id}-occupation" class="form control">
+                                    <select type="dropdown" id="${character.id}-occupation" class="form control">
                                         <option value="Accountant">Accountant</option>
                                         <option value="Actor">Actor</option>
                                         <option value="Animator">Animator</option>
@@ -310,15 +320,15 @@ class DOMManager {
                             <div class="row">
                                 <div class="col-sm">
                                     <h4> Age </h4>
-                                    <input type="number" id="${character._id}-age" class="form-control">
+                                    <input type="number" id="${character.id}-age" class="form-control">
                                 </div>
                                 <div class="col-sm">
                                     <h4> Personality </h4>
-                                    <input type="text" id="${character._id}-personality" class="form-control">
+                                    <input type="text" id="${character.id}-personality" class="form-control">
                                 </div>
                                 <div class="col-sm">
                                     <h4> Backstory </h4>
-                                    <input type="text" id="${character._id}-backstory" class="form-control">
+                                    <input type="text" id="${character.id}-backstory" class="form-control">
                                 </div>
                             </div>
                             <br>
@@ -331,18 +341,18 @@ class DOMManager {
                                 <div class="row">
                                     <div class="col-sm">
                                         <h4> Weapon Name </h4>
-                                        <input type="text" id="${character._id}-weapon-name" class="form-control" placeholder="Weapon Name">
+                                        <input type="text" id="${character.id}-weapon-name" class="form-control" placeholder="Weapon Name">
                                     </div>
                                     <div class="col-sm">
                                         <h4> Weapon Slot </h4>
-                                        <select type="dropdown" id="${character._id}-weapon-slot" class="form control" placeholder="Weapon Slot">
+                                        <select type="dropdown" id="${character.id}-weapon-slot" class="form control" placeholder="Weapon Slot">
                                             <option value="Primary">Primary</option>
                                             <option value="Secondary">Secondary</option>
                                         </select>
                                     </div>
                                     <div class="col-sm">
                                         <h4> Damage Type </h4>
-                                        <select type="dropdown" id="${character._id}-weapon-type" class="form control" placeholder="Damage Type">
+                                        <select type="dropdown" id="${character.id}-weapon-type" class="form control" placeholder="Damage Type">
                                             <option value="Hitscan">Hitscan</option>
                                             <option value="Projectile">Projectile</option>
                                             <option value="Melee">Melee</option>
@@ -351,7 +361,7 @@ class DOMManager {
                                     </div>
                                     <div class="col-sm">
                                         <h4> Clip Type </h4>
-                                        <select type="dropdown" id="${character._id}-clip-type" class="form control" placeholder="Special Type">
+                                        <select type="dropdown" id="${character.id}-clip-type" class="form control" placeholder="Special Type">
                                         <option value="Standard Clips">Standard Clips</option>
                                         <option value="Continuous Clip">Continuous Clip</option>
                                         <option value="Single Shot">Single Shot</option>
@@ -361,7 +371,7 @@ class DOMManager {
                                     </div>
                                     <div class="col-sm">
                                         <h4> Special Type </h4>
-                                        <select type="dropdown" id="${character._id}-weapon-special" class="form control" placeholder="Special Type">
+                                        <select type="dropdown" id="${character.id}-weapon-special" class="form control" placeholder="Special Type">
                                             <option value="Ammo Types">Ammo Types</option>
                                             <option value="Alternative Fire">Alternative Fire</option>
                                             <option value="Damage Boosted">Damage Boosted</option>
@@ -377,11 +387,11 @@ class DOMManager {
                 `
             );
             for (let information of character.info) {
-                $(`#${character._id}`).find('.card-body').append(
+                $(`#${character.id}`).find('.card-body').append(
                     `<p>
                         <span id="name-${information.id}"><strong>Name: </strong> ${information.name}</span>
-                        <span id="info-${information.id}"><strong>Info: </strong> ${information.info},/span>
-                        <button class="btn btn-danger> onclick="DOMManager.deleteInfo('${character._id}', '${information._id}')">Delete Info</button>
+                        <span id="info-${information.id}"><strong>Info: </strong> ${information.info}</span>
+                        <button class="btn btn-danger" onclick="DOMManager.deleteInfo('${character.id}', '${information.id}')">Delete Info</button>
                         </p>`
                 )
             }

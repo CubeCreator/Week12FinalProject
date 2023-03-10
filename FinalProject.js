@@ -4,7 +4,7 @@ class Weapons{
 
     constructor(weaponName, weaponSlot, damageType, clipType, specialType){
         this.weaponName = weaponName;
-        this.weaponId = Weapons.idCounter++;
+        this.weaponId = wEidCounter++;
         this.weaponSlot = weaponSlot;
         this.damageType = damageType;
         this.clipType = clipType;
@@ -17,7 +17,7 @@ class Character {
     constructor(name, id) {
         this.name = name;
         this.id = id;
-        this.descriptionInfo = []
+        this.descriptionInfo = [];
         this.weaponInfo = [];
     }
 
@@ -105,7 +105,8 @@ class DOMManager {
     static addWeaponsInfo(id){
         for (let character of this.characters) {
             if(character.id == id) {
-                character.weaponInfo.push(new Weapons($(`#${character.id}-weapon-name`).val(), $(`#${character.id}-weapon-slot`).val(), $(`#${character.id}-weapon-type`).val(), $(`${character.id}-clip-type`).val(), $(`#${character.id}-weapon-special`).val()));
+                console.log(character.weaponInfo)
+                character.weaponInfo.push(new Weapons($(`#${character.id}-weapon-name`).val(), $(`#${character.id}-weapon-slot`).val(), $(`#${character.id}-weapon-type`).val(), $(`#${character.id}-clip-type`).val(), $(`#${character.id}-weapon-special`).val()));
                 CharacterServices.updateCharacter(character)
                     .then(() => {
                         return CharacterServices.getAllCharacters();
@@ -120,6 +121,7 @@ class DOMManager {
     static addDescriptionInfo(id){
         for (let character of this.characters) {
             if(character.id == id) {
+                console.log(character.descriptionInfo)
                 character.descriptionInfo.push(new Description($(`#${character.id}-gender`).val(), $(`#${character.id}-race`).val(), $(`#${character.id}-nationality`).val(), $(`#${character.id}-occupation`).val(), $(`#${character.id}-age`).val(), $(`#${character.id}-personality`).val(), $(`#${character.id}-backstory`).val()));
                 CharacterServices.updateCharacter(character)
                     .then(() => {
@@ -135,7 +137,7 @@ class DOMManager {
     static deleteWeaponInfo(characterId, weaponId) {
         for(let character of this.characters) {
             if(character.id == characterId) {
-                for (let info of character.info) {
+                for (let info of character.weaponInfo) {
                     console.log(info.weaponId, weaponId)
                     if (info.weaponId == weaponId) {
                         character.weaponInfo.splice(character.weaponInfo.indexOf(info), 1);
@@ -155,9 +157,9 @@ class DOMManager {
     static deleteDescriptionInfo(characterId, descriptionId) {
         for(let character of this.characters) {
             if(character.id == characterId) {
-                for (let info of character.info) {
+                for (let info of character.descriptionInfo) {
                     console.log(info.descriptionId, descriptionId)
-                    if (info.weaponId == infoId || info.descriptionId == infoId) {
+                    if (info.descriptionId == descriptionId) {
                         character.descriptionInfo.splice(character.descriptionInfo.indexOf(info), 1);
                         CharacterServices.updateCharacter(character)
                             .then(() => {
@@ -379,7 +381,7 @@ class DOMManager {
                                     </div>
                                     <div class="col-sm">
                                         <h4> Damage Type </h4>
-                                        <select type="dropdown" id="${character.id}-weapon-type" class="form control" placeholder="Damage Type">
+                                        <select type="dropdown" id="${character.id}-weapon-type" class="form control">
                                             <option value="Hitscan">Hitscan</option>
                                             <option value="Projectile">Projectile</option>
                                             <option value="Melee">Melee</option>
@@ -388,17 +390,17 @@ class DOMManager {
                                     </div>
                                     <div class="col-sm">
                                         <h4> Clip Type </h4>
-                                        <select type="dropdown" id="${character.id}-clip-type" class="form control" placeholder="Special Type">
-                                        <option value="Standard Clips">Standard Clips</option>
-                                        <option value="Continuous Clip">Continuous Clip</option>
-                                        <option value="Single Shot">Single Shot</option>
-                                        <option value="Unlimited Clips">Unlimited Clips</option>
-                                        <option value="Energy Overheat">Energy Overheat</option>
-                                    </select>
+                                        <select type="dropdown" id="${character.id}-clip-type" class="form control">
+                                            <option value="Standard Clips">Standard Clips</option>
+                                            <option value="Continuous Clip">Continuous Clip</option>
+                                            <option value="Single Shot">Single Shot</option>
+                                            <option value="Unlimited Clips">Unlimited Clips</option>
+                                            <option value="Energy Overheat">Energy Overheat</option>
+                                        </select>
                                     </div>
                                     <div class="col-sm">
                                         <h4> Special Type </h4>
-                                        <select type="dropdown" id="${character.id}-weapon-special" class="form control" placeholder="Special Type">
+                                        <select type="dropdown" id="${character.id}-weapon-special" class="form control">
                                             <option value="Ammo Types">Ammo Types</option>
                                             <option value="Alternative Fire">Alternative Fire</option>
                                             <option value="Damage Boosted">Damage Boosted</option>
@@ -413,21 +415,21 @@ class DOMManager {
                 </div><br><br>
                 `
             );
-            for (let info of character.weaponInfo) {
-                console.log("Info: ", info, " Character.weaponInfo:", character.weaponInfo)
+            for (let weapon of character.weaponInfo) {
+                console.log("Info: ", weapon, " Character.weaponInfo:", character.weaponInfo)
                 $(`#${character.id}`).find('.card-body').append(
                     `<p>
-                        <span id="info-${info.id}"><strong>Weapon: </strong> ${character.weaponInfo}</span>
-                        <button class="btn btn-danger" onclick="DOMManager.deleteWeaponInfo('${character.id}', '${info.weaponId}')">Delete Info</button>
+                        <span id="info-${weapon.id}"><strong>Weapon: </strong> ${character.weaponInfo}</span>
+                        <button class="btn btn-danger" onclick="DOMManager.deleteWeaponInfo('${character.id}', '${weapon.id}')">Delete Weapon</button>
                         </p>`
                 )
             }
-            for (let info of character.descriptionInfo) {
-                console.log("Info: ", info, " Character.descriptionInfo:", character.descriptionInfo)
+            for (let description of character.descriptionInfo) {
+                console.log("Info: ", description, " Character.descriptionInfo:", character.descriptionInfo)
                 $(`#${character.id}`).find('.card-body').append(
                     `<p>
-                        <span id="info-${info.id}"><strong>Description: </strong> ${character.descriptionInfo}</span>
-                        <button class="btn btn-danger" onclick="DOMManager.deleteWeaponInfo('${character.id}', '${info.descriptionId}')">Delete Weapon</button>
+                        <span id="info-${description.id}"><strong>Description: </strong> ${character.descriptionInfo}</span>
+                        <button class="btn btn-danger" onclick="DOMManager.deleteWeaponInfo('${character.id}', '${description.id}')">Delete Info</button>
                         </p>`
                 )
             }

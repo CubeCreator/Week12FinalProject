@@ -1,10 +1,11 @@
+idCounter = 0
 //Classes Defined
 class Weapons{
     static idCounter = 0
 
     constructor(weaponName, weaponSlot, damageType, clipType, specialType){
         this.weaponName = weaponName;
-        this.weaponId = wEidCounter++;
+        this.weaponId = Weapons.idCounter;
         this.weaponSlot = weaponSlot;
         this.damageType = damageType;
         this.clipType = clipType;
@@ -21,20 +22,20 @@ class Character {
         this.weaponInfo = [];
     }
 
-    addWeaponsInfo(weaponName, weaponSlot, damageType, clipType, specialType) {
-        this.info.push(new Weapons(weaponName, weaponSlot, damageType, clipType, specialType));
+    addWeaponsInfo(weaponName, weaponId, weaponSlot, damageType, clipType, specialType) {
+        this.info.push(new Weapons(weaponName, weaponId, weaponSlot, damageType, clipType, specialType));
     }
 
-    addDescriptionInfo(name, gender, race, nationality, occupation, age, personality, backstory) {
-        this.info.push(new Description(name, gender, race, nationality, occupation, age, personality, backstory));
+    addDescriptionInfo(descriptionId, name, gender, race, nationality, occupation, age, personality, backstory) {
+        this.info.push(new Description(descriptionId, name, gender, race, nationality, occupation, age, personality, backstory));
     }
 }
 
 class Description {
-    idCounter = 0
+    static idCounter = 0
 
     constructor(gender, race, nationality, occupation, age, personality, backstory){
-        this.descriptionId = Description.idCounter++;
+        this.descriptionId = Description.idCounter;
         this.gender = gender;
         this.race = race;
         this.nationality = nationality;
@@ -112,6 +113,8 @@ class DOMManager {
                         return CharacterServices.getAllCharacters();
                     })
                     .then((characters) => this.render(characters))
+                    Weapons.idCounter++
+                    console.log("Weapons Id Counter: ", Weapons.idCounter)
             }
         }
         console.log("Weapon Added")
@@ -122,12 +125,15 @@ class DOMManager {
         for (let character of this.characters) {
             if(character.id == id) {
                 console.log(character.descriptionInfo)
+                console.log(new Description($(`#${character.id}-gender`).val(), $(`#${character.id}-race`).val(), $(`#${character.id}-nationality`).val(), $(`#${character.id}-occupation`).val(), $(`#${character.id}-age`).val(), $(`#${character.id}-personality`).val(), $(`#${character.id}-backstory`).val()));
                 character.descriptionInfo.push(new Description($(`#${character.id}-gender`).val(), $(`#${character.id}-race`).val(), $(`#${character.id}-nationality`).val(), $(`#${character.id}-occupation`).val(), $(`#${character.id}-age`).val(), $(`#${character.id}-personality`).val(), $(`#${character.id}-backstory`).val()));
                 CharacterServices.updateCharacter(character)
                     .then(() => {
                         return CharacterServices.getAllCharacters();
                     })
                     .then((characters) => this.render(characters))
+                    Description.idCounter++
+                    console.log("Description Id Counter: ", Description.idCounter)
             }
         }
         console.log("Description Added")
@@ -135,8 +141,11 @@ class DOMManager {
     
     //Delete Weapon Info
     static deleteWeaponInfo(characterId, weaponId) {
+        console.log("Deleting weapon info...", characterId, weaponId);
         for(let character of this.characters) {
+            console.log("deleteWeaponInfo", character);
             if(character.id == characterId) {
+                console.log("Character found...", character.id, characterId);
                 for (let info of character.weaponInfo) {
                     console.log(info.weaponId, weaponId)
                     if (info.weaponId == weaponId) {
@@ -155,8 +164,11 @@ class DOMManager {
 
     //Delete Description Info
     static deleteDescriptionInfo(characterId, descriptionId) {
+        console.log("Deleting description info...", characterId, descriptionId);
         for(let character of this.characters) {
+            console.log("deleteDescriptionInfo", character);
             if(character.id == characterId) {
+                console.log("Character found...", character.id, characterId);
                 for (let info of character.descriptionInfo) {
                     console.log(info.descriptionId, descriptionId)
                     if (info.descriptionId == descriptionId) {
@@ -254,7 +266,7 @@ class DOMManager {
                                         <option value="Sweden">Sweden</option>
                                         <option value="Switzerland">Switzerland</option>
                                         <option value="Turkey">Turkey</option>
-                                        <option value="United Kingdom>United Kingdom</option>
+                                        <option value="United Kingdom">United Kingdom</option>
                                         <option value="United States">United States</option>
                                         <option value="Venezuela">Venezuela</option>
                                         <option value="Vietnam">Vietnam</option>
@@ -416,20 +428,20 @@ class DOMManager {
                 `
             );
             for (let weapon of character.weaponInfo) {
-                console.log("Info: ", weapon, " Character.weaponInfo:", character.weaponInfo)
+                console.log("Info: ", weapon.weaponId, " Character.weaponInfo:", character.weaponInfo)
                 $(`#${character.id}`).find('.card-body').append(
                     `<p>
-                        <span id="info-${weapon.id}"><strong>Weapon: </strong> ${character.weaponInfo}</span>
-                        <button class="btn btn-danger" onclick="DOMManager.deleteWeaponInfo('${character.id}', '${weapon.id}')">Delete Weapon</button>
+                        <span id="info-${weapon.id}"><strong>Weapon: </strong> ${character.weaponInfo} </span>
+                        <button class="btn btn-danger" onclick="DOMManager.deleteWeaponInfo('${character.id}', '${weapon.weaponId}')">Delete Weapon</button>
                         </p>`
                 )
             }
             for (let description of character.descriptionInfo) {
-                console.log("Info: ", description, " Character.descriptionInfo:", character.descriptionInfo)
+                console.log("Info: ", description.descriptionId, " Character.descriptionInfo:", character.descriptionInfo)
                 $(`#${character.id}`).find('.card-body').append(
                     `<p>
-                        <span id="info-${description.id}"><strong>Description: </strong> ${character.descriptionInfo}</span>
-                        <button class="btn btn-danger" onclick="DOMManager.deleteWeaponInfo('${character.id}', '${description.id}')">Delete Info</button>
+                        <span id="info-${description.id}"><strong>Description: </strong> ${character.descriptionInfo} </span>
+                        <button class="btn btn-danger" onclick="DOMManager.deleteDescriptionInfo('${character.id}', '${description.descriptionId}')">Delete Info</button>
                         </p>`
                 )
             }
